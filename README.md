@@ -1,77 +1,120 @@
-# JustStreamIt
+# Just-Stream-It
 
-L'application web permet de visualiser en temps réel un classement interactif de films, 
-reprenant le concept des newsletters de JustStreamIt. Elle offre une interface responsive 
-et compatible avec les navigateurs les plus utilisés. Le site récupère les données des films 
-à partir d'une API local (OCMovies-API).
+## Description
 
-## Prérequis
+JustStreamIt is a web application that displays an interactive,
+real-time movie ranking inspired by the concept of JustStreamIt
+newsletters.
 
-- **Python 3** installé sur votre machine.
-- Connexion Internet
+It provides a responsive interface compatible with the most commonly
+used web browsers. Movie data is retrieved from a locally hosted API,
+**OCMovies-API**.
 
-## Installation et Lancement
+------------------------------------------------------------------------
 
-Le site récupère les données des films à partir de l’API. Pour que ces données 
-soient affichées, il est indispensable de lancer le serveur API en local.
+## Prerequisites
 
-1. **Installer et exécuter l'API OCMovies-API en local :**
+-   Python 3 installed on your machine
+-   Internet connection
 
-    Ouvrez votre terminal, rendez-vous dans le dossier de votre choix et clonez 
-    le dépôt Git avec la commande :
-    ```
-    git clone https://github.com/OpenClassrooms-Student-Center/OCMovies-API-EN-FR.git
-    ```
+------------------------------------------------------------------------
 
-    Naviguer dans le répertoire :
-    ```
-    cd ocmovies-api-fr
-    ```
-    Créer un environnement virtuel :
-    ### Sous Windows :
-    ```
-    python -m venv env
-    env\Scripts\activate
-    ```
-    ### Sous macOS/Linux :
-    ```
-    python3 -m venv env
-    source env/bin/activate
-    ```
-    Installer les dépendances :
-    ```
-    pip install -r requirements.txt
-    ```
-    Créer et alimenter la base de données :
-    ```
-    python manage.py create_db
-    ```
-    Démarrer le serveur :
-    ```
-    python manage.py runserver   
-    ```
+## Installation and Usage
 
-2. **Cloner le dépôt du projet :**
+The website retrieves movie data from the API. To display this data, the
+API server must first be running locally.
 
-    Lancez la console, placez-vous dans le dossier de votre choix et clonez le dépôt :
-    ```
-    git clone https://github.com/mouquettom/OpenClassrooms_P6_JustStreamIt.git
-    ```
+### 1. Install and Run OCMovies-API Locally
 
-3. **Lancer l’application :**
+Open a terminal, navigate to the directory of your choice, and clone the
+API repository:
 
-    Vous pouvez naviguer dans le dossier et ouvrir le fichier index.html directement dans votre navigateur.
+``` bash
+git clone https://github.com/OpenClassrooms-Student-Center/OCMovies-API-EN-FR.git
+```
 
+Navigate to the API directory:
 
-## Structure du Projet
+``` bash
+cd ocmovies-api-fr
+```
 
-- ### index.html
-    Le fichier principal qui structure l’interface du site et définit les différentes sections (meilleur film, catégories, etc.).
+Create a virtual environment.
 
-- ### styles/style.css
-    La feuille de style qui gère la présentation, le responsive design et certaines animations.
+#### Windows
 
-- ### scripts/script.js
-    Le script JavaScript qui gère :
-   - Les appels à l’API (via fetch) pour récupérer et afficher les données des films.
-   - Les interactions utilisateur (ouverture de la modale, effets de survol, navigation dans les carrousels).
+``` bash
+python -m venv env
+env\Scripts\activate
+```
+
+#### macOS / Linux
+
+``` bash
+python3 -m venv env
+source env/bin/activate
+```
+
+Install the dependencies:
+
+``` bash
+pip install -r requirements.txt
+```
+
+Create and populate the database:
+
+``` bash
+python manage.py create_db
+```
+
+Start the API server:
+
+``` bash
+python manage.py runserver
+```
+
+### 2. Clone the JustStreamIt Repository
+
+Open a terminal, navigate to the directory of your choice, and clone the
+repository:
+
+``` bash
+git clone https://github.com/mouquettom/just-stream-it.git
+cd just-stream-it
+```
+
+### 3. Run the Application
+
+Navigate to the project directory and open the `index.html` file
+directly in your web browser.
+
+------------------------------------------------------------------------
+
+## Project Structure
+
+### `index.html`
+
+The main file that structures the website interface and defines the
+different sections, including the best movie and movie categories.
+
+### `styles/style.css`
+
+The stylesheet responsible for the visual presentation, responsive
+design, and some animations.
+
+### `scripts/script.js`
+
+The JavaScript file responsible for:
+
+-   API requests using `fetch` to retrieve and display movie data
+-   User interactions, including opening the modal, hover effects, and
+    carousel navigation
+
+------------------------------------------------------------------------
+
+## Author
+
+@tom_mouquet
+
+Project developed as part of the OpenClassrooms **Développeur
+d'application Python** training program.
