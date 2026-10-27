@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return await fetchJson(`${API_URL}${movieId}`);
         } catch (error) {
             console.error("Erreur lors de la récupération du film :", error);
-            alert("Impossible de récupérer les détails du film.");
+            alert("Unable to load the movie details.");
         }
     }
 
@@ -37,14 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const movie = await fetchMovieDetails(movieId);
         if (!movie) return;
 
-        document.getElementById("modal_title").innerText = movie.title || "Titre inconnu";
-        document.getElementById("modal_year").innerText = movie.year || "Année inconnue";
-        document.getElementById("modal_genre").innerText = movie.genres ? movie.genres.join(", ") : "Genres inconnus";
-        document.getElementById("modal_duration").innerText = movie.duration ? `${movie.duration} min` : "Durée inconnue";
-        document.getElementById("modal_score").innerText = movie.imdb_score || "Score inconnu";
-        document.getElementById("modal_director").innerText = movie.directors ? movie.directors.join(", ") : "Réalisateur inconnu";
-        document.getElementById("modal_description").innerText = movie.description || "Description non disponible";
-        document.getElementById("modal_cast").innerText = movie.actors ? movie.actors.join(", ") : "Casting inconnu";
+        document.getElementById("modal_title").innerText = movie.title || "Unknown title";
+        document.getElementById("modal_year").innerText = movie.year || "Unknown year";
+        document.getElementById("modal_genre").innerText = movie.genres ? movie.genres.join(", ") : "Unknown genres";
+        document.getElementById("modal_duration").innerText = movie.duration ? `${movie.duration} min` : "Unknown duration";
+        document.getElementById("modal_score").innerText = movie.imdb_score || "Unknown score";
+        document.getElementById("modal_director").innerText = movie.directors ? movie.directors.join(", ") : "Unknown directors";
+        document.getElementById("modal_description").innerText = movie.description || "Description not available";
+        document.getElementById("modal_cast").innerText = movie.actors ? movie.actors.join(", ") : "Unknown cast";
 
         modalImg.src = "";
         modalImg.src = movie.image_url;
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         container.innerHTML = "";
         const message = document.createElement("p");
         message.classList.add("empty-message");
-        message.textContent = "Aucun film disponible pour cette catégorie.";
+        message.textContent = "No movies available in this category.";
         container.appendChild(message);
     }
 
@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const movieDescription = document.querySelector(".best-movie .movie-card p");
         fetchJson(`${API_URL}${bestMovie.id}`)
             .then(movieDetail => {
-                movieDescription.textContent = movieDetail.description || "Description non disponible";
+                movieDescription.textContent = movieDetail.description || "Description not available";
             })
             .catch(error => console.error("Erreur lors de la récupération de la description :", error));
     }
