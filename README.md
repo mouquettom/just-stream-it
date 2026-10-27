@@ -36,7 +36,7 @@ git clone https://github.com/OpenClassrooms-Student-Center/OCMovies-API-EN-FR.gi
 Navigate to the API directory:
 
 ``` bash
-cd ocmovies-api-fr
+cd OCMovies-API-EN-FR
 ```
 
 Create a virtual environment.
@@ -72,6 +72,9 @@ Start the API server:
 ``` bash
 python manage.py runserver
 ```
+
+The API must be reachable at `http://localhost:8000` (the default
+address of `runserver`): this is the address used by the website.
 
 ### 2. Clone the JustStreamIt Repository
 
@@ -114,7 +117,7 @@ The JavaScript file responsible for:
 
 ## Author
 
-@tom_mouquet
+Tom Mouquet ([@mouquettom](https://github.com/mouquettom))
 
 Project developed as part of the OpenClassrooms **Développeur
 d'application Python** training program.
