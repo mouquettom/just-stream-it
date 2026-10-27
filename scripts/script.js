@@ -1,36 +1,37 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    // URL de base de l'API OCMovies (serveur lancé en local)
+    const API_URL = "http://localhost:8000/api/v1/titles/";
+    // Nombre de films affichés par catégorie
+    const MOVIES_PER_PAGE = 6;
+
     // ----------------------------
-    // Gestion du modal et de la navigation
+    // Appels à l'API
+    // ----------------------------
+
+    async function fetchJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        return response.json();
+    }
+
+    async function fetchMovieDetails(movieId) {
+        try {
+            return await fetchJson(`${API_URL}${movieId}`);
+        } catch (error) {
+            console.error("Erreur lors de la récupération du film :", error);
+            alert("Impossible de récupérer les détails du film.");
+        }
+    }
+
+    // ----------------------------
+    // Gestion du modal
     // ----------------------------
 
     const modalWindow = document.getElementById("modal_window");
     const closeModalBtn = document.getElementById("close_modal");
     const closeModalSpan = document.querySelector(".close");
     const modalImg = document.getElementById("imgfilm");
-
-    // Sélecteurs pour le grid de films et le select de genres
-    const movieGrid = document.getElementById("list_film");
-    const genreSelect = document.getElementById("genre_select");
-    const titreGenre = document.getElementById("titre_genre");
-
-    const sciFiMovies = document.getElementById("sci-fi_movies");
-    const comedyMovies = document.getElementById("comedy_movies");
-
-    // ----------------------------
-    // Fonctions pour le modal
-    // ----------------------------
-
-    async function fetchMovieDetails(movieId) {
-        try {
-            const response = await fetch(`http://localhost:8000/api/v1/titles/${movieId}`);
-            if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error("Erreur", error);
-            alert("Impossible de récupérer les détails du film.");
-        }
-    }
 
     async function openModal(movieId) {
         const movie = await fetchMovieDetails(movieId);
@@ -47,12 +48,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         modalImg.src = "";
         modalImg.src = movie.image_url;
+        modalImg.alt = movie.title || "";
 
         modalWindow.style.display = "flex";
         modalWindow.classList.add("fade-in");
     }
 
-    async function closeModal() {
+    function closeModal() {
         modalWindow.classList.remove("fade-in");
         modalWindow.classList.add("fade-out");
         setTimeout(() => {
@@ -61,15 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 300);
     }
 
+    // Un seul écouteur pour toute la page : ouverture et fermeture du modal
     document.body.addEventListener("click", (event) => {
         const target = event.target;
+        const movieId = target.dataset.id;
 
-        // Ouvrir le modal si on clique sur une image ou sur un bouton "Details"
-        if (target.tagName === "IMG" && target.dataset.id) {
-            openModal(target.dataset.id);
-        }
-        if (target.classList.contains("details-btn")) {
-            openModal(target.dataset.id);
+        // Ouvrir le modal si on clique sur l'image d'un film ou sur un bouton "Details"
+        if (movieId && (target.tagName === "IMG" || target.classList.contains("details-btn"))) {
+            openModal(movieId);
         }
 
         // Fermer le modal si on clique en dehors ou sur les éléments de fermeture
@@ -79,57 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ----------------------------
-    // Chargement des films par genre
+    // Affichage des films
     // ----------------------------
-
-    async function loadMoviesByGenre(genre, targetDiv) {
-        const apiUrlPage1 = `http://localhost:8000/api/v1/titles/?genre=${genre}&page=1`;
-        const apiUrlPage2 = `http://localhost:8000/api/v1/titles/?genre=${genre}&page=2`;
-
-        try {
-            const response1 = await fetch(apiUrlPage1);
-            const data1 = await response1.json();
-
-            let movies = data1.results;
-
-            if (movies.length < 6) {
-                const response2 = await fetch(apiUrlPage2);
-                const data2 = await response2.json();
-                if (data2.results.length > 0) {
-                    movies.push(data2.results[0]);
-                }
-            }
-            updateMovieList(movies.slice(0, 6), targetDiv);
-        } catch (error) {
-            console.error("Erreur lors de la récupération des films :", error);
-        }
-    }
-
-    function updateMovieList(movies, targetDiv) {
-        targetDiv.innerHTML = "";
-
-        // Mise à jour du titre de la catégorie pour le select
-        if (titreGenre.querySelector("h2")) {
-            titreGenre.querySelector("h2").remove();
-        }
-        const movieGenre = document.createElement("h2");
-        movieGenre.innerHTML = genreSelect.value;
-        titreGenre.appendChild(movieGenre);
-
-        const movieGridContainer = document.createElement("div");
-        movieGridContainer.classList.add("movie-grid");
-
-        movies.forEach(movie => {
-            const movieCard = document.createElement("div");
-            movieCard.innerHTML = `
-                <img src="${movie.image_url}" alt="${movie.title}" data-id="${movie.id}">
-            `;
-            movieGridContainer.appendChild(movieCard);
-            addHoverEffect(movieCard.querySelector("img"));
-        });
-
-        targetDiv.appendChild(movieGridContainer);
-    }
 
     function addHoverEffect(img) {
         img.addEventListener("mouseover", () => {
@@ -141,257 +93,137 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    genreSelect.addEventListener("change", () => {
-        loadMoviesByGenre(genreSelect.value, movieGrid);
-    });
-
-    // Chargement initial pour le select de genre
-    loadMoviesByGenre(genreSelect.value, movieGrid);
-
-    // ----------------------------
-    // Gestion du carrousel pour la catégorie sélectionnée
-    // ----------------------------
-
-    async function loadMoviesCarousel(genre, targetDiv, page) {
-        const apiUrl = `http://localhost:8000/api/v1/titles/?genre=${genre}&page=${page}`;
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            let movies = data.results;
-
-            if (movies.length < 6) {
-                const nextPage = page + 1;
-                const response2 = await fetch(`http://localhost:8000/api/v1/titles/?genre=${genre}&page=${nextPage}`);
-                const data2 = await response2.json();
-                while (movies.length < 6 && data2.results.length > 0) {
-                    movies.push(data2.results.shift());
-                }
-            }
-
-            if (!movies || movies.length === 0) {
-                targetDiv.innerHTML = '<p>Aucun film disponible pour cette catégorie.</p>';
-                const nextBtn = document.getElementById(`next-${genre}`);
-                if (nextBtn) nextBtn.disabled = true;
-            } else {
-                updateCarouselMovies(movies.slice(0, 6), targetDiv);
-                const nextBtn = document.getElementById(`next-${genre}`);
-                if (nextBtn) nextBtn.disabled = false;
-            }
-            const prevBtn = document.getElementById(`prev-${genre}`);
-            if (prevBtn) {
-                prevBtn.disabled = (page === 1);
-            }
-        } catch (error) {
-            console.error("Erreur lors de la récupération des films :", error);
-        }
+    function createMovieImage(movie) {
+        const img = document.createElement("img");
+        img.src = movie.image_url;
+        img.alt = movie.title;
+        img.dataset.id = movie.id;
+        addHoverEffect(img);
+        return img;
     }
 
-    function updateCarouselMovies(movies, targetDiv) {
-        targetDiv.innerHTML = "";
+    function displayMovies(movies, container) {
+        container.innerHTML = "";
+        movies.forEach(movie => container.appendChild(createMovieImage(movie)));
+    }
 
-        const movieGridContainer = document.createElement("div");
-        movieGridContainer.classList.add("movie-grid");
+    function displayEmptyMessage(container) {
+        container.innerHTML = "";
+        const message = document.createElement("p");
+        message.classList.add("empty-message");
+        message.textContent = "Aucun film disponible pour cette catégorie.";
+        container.appendChild(message);
+    }
 
-        movies.forEach(movie => {
-            const movieCard = document.createElement("div");
-            movieCard.innerHTML = `
-                <img src="${movie.image_url}" alt="${movie.title}" data-id="${movie.id}">
-            `;
-            movieGridContainer.appendChild(movieCard);
-            addHoverEffect(movieCard.querySelector("img"));
+    // ----------------------------
+    // Carrousels par genre
+    // ----------------------------
+
+    // Crée un carrousel de MOVIES_PER_PAGE films pour un conteneur et ses deux boutons.
+    // L'API gère la pagination (page_size) et indique s'il existe une page précédente/suivante.
+    function createCarousel(container, prevBtn, nextBtn) {
+        let genre = null;
+        let currentPage = 1;
+        let lastRequest = 0;
+
+        async function loadPage(page) {
+            const requestId = ++lastRequest;
+            const url = `${API_URL}?genre=${encodeURIComponent(genre)}&page_size=${MOVIES_PER_PAGE}&page=${page}`;
+            try {
+                const data = await fetchJson(url);
+                // Ignorer une réponse arrivée après une requête plus récente
+                if (requestId !== lastRequest) return;
+
+                currentPage = page;
+                if (data.results.length === 0) {
+                    displayEmptyMessage(container);
+                } else {
+                    displayMovies(data.results, container);
+                }
+                prevBtn.disabled = !data.previous;
+                nextBtn.disabled = !data.next;
+            } catch (error) {
+                console.error(`Erreur lors de la récupération des films (${genre}) :`, error);
+            }
+        }
+
+        prevBtn.addEventListener("click", () => {
+            if (currentPage > 1) loadPage(currentPage - 1);
         });
+        nextBtn.addEventListener("click", () => loadPage(currentPage + 1));
 
-        targetDiv.appendChild(movieGridContainer);
+        return {
+            show(newGenre) {
+                genre = newGenre;
+                loadPage(1);
+            }
+        };
     }
 
-    let currentPageSelected = 1;
+    // Catégories fixes
+    createCarousel(
+        document.getElementById("sci-fi_movies"),
+        document.getElementById("prev-sci-fi"),
+        document.getElementById("next-sci-fi")
+    ).show("Sci-Fi");
 
-    async function loadSelectedCategoryCarousel(genre, targetDiv, page) {
-        const apiUrl = `http://localhost:8000/api/v1/titles/?genre=${genre}&page=${page}`;
+    createCarousel(
+        document.getElementById("comedy_movies"),
+        document.getElementById("prev-comedy"),
+        document.getElementById("next-comedy")
+    ).show("Comedy");
+
+    // Catégorie choisie dans la liste déroulante
+    const genreSelect = document.getElementById("genre_select");
+    const selectedCategoryTitle = document.getElementById("selected-category-title");
+    const selectedCarousel = createCarousel(
+        document.getElementById("list_film"),
+        document.getElementById("prev-selected"),
+        document.getElementById("next-selected")
+    );
+
+    function showSelectedGenre() {
+        selectedCategoryTitle.textContent = genreSelect.value;
+        selectedCarousel.show(genreSelect.value);
+    }
+
+    genreSelect.addEventListener("change", showSelectedGenre);
+    showSelectedGenre();
+
+    // ----------------------------
+    // Meilleur film et Top Films
+    // ----------------------------
+
+    function displayBestMovie(bestMovie) {
+        const movieImg = document.querySelector(".best-movie .movie-card img");
+        movieImg.src = bestMovie.image_url;
+        movieImg.alt = bestMovie.title;
+
+        document.querySelector(".best-movie .movie-card h3").textContent = bestMovie.title;
+        document.querySelector(".best-movie .movie-card button.details-btn").dataset.id = bestMovie.id;
+
+        // La description complète n'est disponible que sur l'endpoint de détail du film
+        const movieDescription = document.querySelector(".best-movie .movie-card p");
+        fetchJson(`${API_URL}${bestMovie.id}`)
+            .then(movieDetail => {
+                movieDescription.textContent = movieDetail.description || "Description non disponible";
+            })
+            .catch(error => console.error("Erreur lors de la récupération de la description :", error));
+    }
+
+    // Une seule requête pour les deux sections : le 1er film est le meilleur,
+    // les suivants forment le Top Films (aucun doublon possible entre les deux).
+    // Le nombre de votes départage les films ayant la même note.
+    async function loadBestAndTopMovies() {
         try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            let movies = data.results;
-
-            if (movies.length < 6) {
-                const nextPage = page + 1;
-                const response2 = await fetch(`http://localhost:8000/api/v1/titles/?genre=${genre}&page=${nextPage}`);
-                const data2 = await response2.json();
-                while (movies.length < 6 && data2.results.length > 0) {
-                    movies.push(data2.results.shift());
-                }
-            }
-
-            const selectedCategoryTitle = document.getElementById("selected-category-title");
-            if (selectedCategoryTitle) {
-                selectedCategoryTitle.textContent = genre;
-            }
-
-            if (!movies || movies.length === 0) {
-                targetDiv.innerHTML = '<p>Aucun film disponible pour cette catégorie.</p>';
-                document.getElementById("next-selected").disabled = true;
-            } else {
-                updateCarouselMovies(movies.slice(0, 6), targetDiv);
-                document.getElementById("next-selected").disabled = false;
-            }
-
-            document.getElementById("prev-selected").disabled = (page === 1);
+            const data = await fetchJson(`${API_URL}?sort_by=-imdb_score,-votes&page_size=${MOVIES_PER_PAGE + 1}`);
+            const [bestMovie, ...topMovies] = data.results;
+            if (bestMovie) displayBestMovie(bestMovie);
+            displayMovies(topMovies, document.getElementById("top_movies"));
         } catch (error) {
-            console.error("Erreur lors de la récupération des films :", error);
+            console.error("Erreur lors de la récupération du meilleur film et des Top Films :", error);
         }
     }
 
-    const nextSelectedBtn = document.getElementById("next-selected");
-    const prevSelectedBtn = document.getElementById("prev-selected");
-    const selectedDiv = document.getElementById("list_film");
-
-    nextSelectedBtn.addEventListener("click", () => {
-        currentPageSelected++;
-        loadSelectedCategoryCarousel(genreSelect.value, selectedDiv, currentPageSelected);
-    });
-    prevSelectedBtn.addEventListener("click", () => {
-        if (currentPageSelected > 1) {
-            currentPageSelected--;
-            loadSelectedCategoryCarousel(genreSelect.value, selectedDiv, currentPageSelected);
-        }
-    });
-
-    genreSelect.addEventListener("change", () => {
-        currentPageSelected = 1;
-        loadSelectedCategoryCarousel(genreSelect.value, selectedDiv, currentPageSelected);
-    });
-
-    loadSelectedCategoryCarousel(genreSelect.value, selectedDiv, currentPageSelected);
-
-    let currentPageSciFi = 1;
-    let currentPageComedy = 1;
-
-    if (sciFiMovies) {
-        const nextSciFiBtn = document.getElementById("next-sci-fi");
-        const prevSciFiBtn = document.getElementById("prev-sci-fi");
-
-        loadMoviesCarousel("sci-fi", sciFiMovies, currentPageSciFi);
-
-        if (nextSciFiBtn && prevSciFiBtn) {
-            nextSciFiBtn.addEventListener("click", () => {
-                currentPageSciFi++;
-                loadMoviesCarousel("sci-fi", sciFiMovies, currentPageSciFi);
-            });
-            prevSciFiBtn.addEventListener("click", () => {
-                if (currentPageSciFi > 1) {
-                    currentPageSciFi--;
-                    loadMoviesCarousel("sci-fi", sciFiMovies, currentPageSciFi);
-                }
-            });
-        }
-    }
-
-    if (comedyMovies) {
-        const nextComedyBtn = document.getElementById("next-comedy");
-        const prevComedyBtn = document.getElementById("prev-comedy");
-
-        loadMoviesCarousel("comedy", comedyMovies, currentPageComedy);
-
-        if (nextComedyBtn && prevComedyBtn) {
-            nextComedyBtn.addEventListener("click", () => {
-                currentPageComedy++;
-                loadMoviesCarousel("comedy", comedyMovies, currentPageComedy);
-            });
-            prevComedyBtn.addEventListener("click", () => {
-                if (currentPageComedy > 1) {
-                    currentPageComedy--;
-                    loadMoviesCarousel("comedy", comedyMovies, currentPageComedy);
-                }
-            });
-        }
-    }
-
-    // ----------------------------
-    // Affichage dynamique du meilleur film
-    // ----------------------------
-
-    fetch("http://localhost:8000/api/v1/titles/?sort_by=-imdb_score&page_size=1")
-        .then(response => response.json())
-        .then(data => {
-            if (data.results && data.results.length > 0) {
-                const bestMovie = data.results[0];
-
-                const movieImg = document.querySelector(".best-movie .movie-card img");
-                if (movieImg) {
-                    movieImg.src = bestMovie.image_url;
-                    movieImg.alt = bestMovie.title;
-                }
-
-                const movieTitle = document.querySelector(".best-movie .movie-card h3");
-                if (movieTitle) {
-                    movieTitle.textContent = bestMovie.title;
-                }
-
-                // Pour récupérer la description complète, effectuer un appel à l'endpoint de détail du film
-                const movieDescription = document.querySelector(".best-movie .movie-card p");
-                if (movieDescription) {
-                    fetch(`http://localhost:8000/api/v1/titles/${bestMovie.id}`)
-                        .then(response => response.json())
-                        .then(movieDetail => {
-                            // Affiche la description complète
-                            movieDescription.textContent = movieDetail.description || "Description non disponible";
-                        })
-                        .catch(error => console.error("Erreur lors de la récupération de la description:", error));
-                    }
-
-                const detailsBtn = document.querySelector(".best-movie .movie-card button.details-btn");
-                if (detailsBtn) {
-                    detailsBtn.setAttribute("data-id", bestMovie.id);
-                }
-            }
-        })
-        .catch(error => console.error("Erreur lors de la récupération du meilleur film :", error));
-
-    // ----------------------------
-    // Affichage dynamique de la catégorie Top Films
-    // ----------------------------
-
-    function displayTopMovies() {
-        // Récupérer la première page avec les films triés par score IMDb décroissant
-        fetch('http://localhost:8000/api/v1/titles/?sort_by=-imdb_score')
-            .then(response => response.json())
-            .then(data => {
-                // Exclure le premier film (affiché dans la section Best movie)
-                let topMovies = data.results.slice(1);
-                // Si on a moins de 6 films, compléter avec les films de la page 2
-                if (topMovies.length < 6) {
-                    const filmsNeeded = 6 - topMovies.length;
-                    return fetch('http://localhost:8000/api/v1/titles/?page=2&sort_by=-imdb_score')
-                        .then(response2 => response2.json())
-                        .then(data2 => {
-                            topMovies = topMovies.concat(data2.results.slice(0, filmsNeeded));
-                            return topMovies;
-                        });
-                }
-                return topMovies;
-            })
-            .then(topMovies => {
-                const container = document.getElementById("top_movies");
-                container.innerHTML = ""; // Réinitialiser le conteneur
-
-                topMovies.slice(0, 6).forEach(movie => {
-                    // Créer l'élément image pour chaque film
-                    const img = document.createElement("img");
-                    img.src = movie.image_url;
-                    img.alt = movie.title;
-                    img.setAttribute("data-id", movie.id);
-                    // Ajout de l'effet hover
-                    addHoverEffect(img);
-                    // Ajouter un écouteur pour ouvrir le modal au clic
-                    img.addEventListener("click", () => {
-                        openModal(movie.id);
-                    });
-
-                    container.appendChild(img);
-                });
-            })
-            .catch(error => console.error("Erreur lors de la récupération des Top Films :", error));
-    }
-
-    displayTopMovies();
+    loadBestAndTopMovies();
 });

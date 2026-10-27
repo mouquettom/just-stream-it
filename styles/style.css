@@ -286,6 +286,18 @@ h3 {
     background-color: darkred;
 }
 
+/* Bouton désactivé : première ou dernière page atteinte */
+.carousel-btn:disabled {
+    background-color: #ccc;
+    cursor: default;
+}
+
+/* Message affiché sur toute la largeur de la grille quand une catégorie est vide */
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
 /* Quand l'écran est plus petit (max 900px), afficher 2 colonnes centrées */
 @media (max-width: 1023px) {
     .grid-container {
