@@ -30,7 +30,7 @@ h1 {
 }
 
 footer {
-    display: flex:
+    display: flex;
     align-items: center;
     justify-content: center;
     color: white;
@@ -165,9 +165,12 @@ h3 {
     padding: 25px;
     border-radius: 8px;
     max-width: 650px;
-    height: 70%;
-    height: 880px; /* Hauteur fixe */
+    box-sizing: border-box;
+    height: 930px; /* Hauteur fixe sur les grands écrans */
+    max-height: 90vh; /* Reste entièrement visible sur les écrans moins hauts */
     overflow-y: auto; /* Permet de scroller si le contenu dépasse */
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-header {
@@ -193,18 +196,8 @@ h3 {
     text-align: justify;
 }
 
-.modal-info {
-    flex: 1;
-    font-size: 16px;
-    line-height: 1.5;
-}
-
-.modal-info strong {
-    font-weight: bold;
-}
-
 .modal-image {
-    width: 280px; /* Ajusté pour ressembler à ton image */
+    width: 280px; /* Largeur fixe de l'affiche dans la modale */
     flex-shrink: 0; /* Empêche la réduction de l'image */
 }
 
@@ -222,11 +215,13 @@ h3 {
     cursor: pointer;
 }
 
+/* Pousse le bouton "Close" en bas de la modale */
+.modal-footer {
+    margin-top: auto;
+    padding-bottom: 10px;
+}
+
 #close_modal {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
     display: block;
     margin: 30px auto 0;
     padding: 10px 20px;
@@ -298,14 +293,8 @@ h3 {
     text-align: center;
 }
 
-/* Quand l'écran est plus petit (max 900px), afficher 2 colonnes centrées */
+/* Quand l'écran est plus petit (max 1023px), afficher 2 colonnes centrées */
 @media (max-width: 1023px) {
-    .grid-container {
-        display: flex;
-        justify-content: center; /* Centre la grille */
-        width: 100%; /* Prend toute la largeur du parent */
-    }
-
     .movie-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
@@ -430,7 +419,7 @@ h3 {
 
     .movie-info p {
         font-size: 1em;       /* Réduit légèrement la taille du texte */
-        text-align: center;     /* Centre le texte si vous le souhaitez */
+        text-align: center;     /* Centre le texte */
         margin-bottom: 5px;
     }
 
