@@ -105,6 +105,10 @@ different sections, including the best movie and movie categories.
 The stylesheet responsible for the visual presentation, responsive
 design, and some animations.
 
+### `images/logo.png`
+
+The JustStreamIt logo, displayed in the header on small screens.
+
 ### `scripts/script.js`
 
 The JavaScript file responsible for:
