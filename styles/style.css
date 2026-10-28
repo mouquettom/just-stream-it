@@ -317,11 +317,25 @@ h3 {
         display: none;
     }
 
+    /* Marges réduites pour laisser plus de largeur au contenu */
+    body {
+        margin: 15px;
+    }
+
+    header {
+        padding: 25px 15px;
+    }
+
+    .best-movie {
+        margin: 25px 0;
+        padding: 15px;
+    }
+
     .best-movie h2 {
         padding-top: 10px;
         padding-left: 0px;
         padding-bottom: 25px;
-        font-size: 2.75em;
+        font-size: 2.25em;
     }
 
     h2, h3 {
@@ -329,6 +343,20 @@ h3 {
         margin: auto;
         padding-left: 0;
         padding-top: 25px;
+    }
+
+    h2 {
+        font-size: 2.25em;
+        padding-bottom: 25px;
+    }
+
+    h3 {
+        font-size: 1.75em;
+    }
+
+    .filters {
+        margin-left: 0;
+        text-align: center;
     }
 
     .logo {
